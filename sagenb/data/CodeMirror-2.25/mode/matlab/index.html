@@ -3,14 +3,11 @@
   <head>
     <title>CodeMirror: Matlab mode</title>
     <link rel="stylesheet" href="../../lib/codemirror.css">
+    <link rel="stylesheet" href="../../theme/neat.css">
     <script src="../../lib/codemirror.js"></script>
     <script src="matlab.js"></script>
     <style>
-      .CodeMirror {border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;}
-      span.cm-meta {color: #a0b !important;}
-      span.cm-error { background-color: black; opacity: 0.4;}
-      span.cm-error.cm-string { background-color: red; }
-      span.cm-error.cm-tag { background-color: #2b2; }
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
     </style>
     <link rel="stylesheet" href="../../doc/docs.css">
   </head>
@@ -22,7 +19,10 @@ function A = try(x,y)
   %% Comentario
     </textarea></form>
     <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+          matchBrackets: true,
+          theme: "neat"
+      });
     </script>
 
     <p><strong>MIME types defined:</strong> <code>text/plain</code>.</p>
