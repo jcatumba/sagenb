@@ -5,6 +5,8 @@
 
 	<!-- CodeMirror -->
 	<link rel="stylesheet" href="/data/CodeMirror-2.25/lib/codemirror.css">
+        <!-- CodeMirror Theme -->
+        <link rel="stylesheet" href="/data/CodeMirror-2.25/theme/neat.css">
 	
 	<!-- simple hinting -->
 	<link rel="stylesheet" href="/data/CodeMirror-2.25/lib/util/simple-hint.css">
@@ -121,6 +123,7 @@
 	<script src="/data/CodeMirror-2.25/mode/stex/stex.js"></script>
 	<script src="/data/CodeMirror-2.25/mode/r/r.js"></script>
 	<script src="/data/CodeMirror-2.25/mode/shell/shell.js"></script>
+	<script src="/data/CodeMirror-2.25/mode/matlab/matlab.js"></script>
 
 	<!-- htmlmixed depends on xml. javascript, and css -->
 	<script src="/data/CodeMirror-2.25/mode/xml/xml.js"></script>
@@ -168,4 +171,11 @@
 		// initialize
 		the_worksheet.init();
 	</script>
+
+	<script>
+                var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                matchBrackets: true,
+                theme: "neat"
+                });
+        </script>
 {% endblock extra_javascript %}
