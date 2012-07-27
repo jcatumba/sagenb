@@ -335,6 +335,73 @@ def parse_link_rel(url, fn):
             ret.append({'url': sws, 'title': d['title']})
     return ret
 
+@worksheet_listing.route('/upload_from_file', methods=['GET', 'POST'])
+
+@login_required
+def upload_from_file():
+    from sage.misc.misc import tmp_filename, tmp_dir
+    from werkzeug.utils import secure_filename
+            
+    if g.notebook.readonly_user(g.username):
+        return current_app.message(_("Account is in read-only mode"), cont=url_for('home', username=g.username))
+
+    backlinks = _("""Return to <a href="/upload" title="Upload a worksheet"><strong>Upload File</strong></a>.""")
+
+    i_file = request.files['text_file']
+    tmpdir = tmp_dir()
+    if i_file.filename is None:
+        return current_app.message(_("Please specify a file to import from.\n%(backlinks)s",backlinks=backlinks))
+
+    i_filename = secure_filename(i_file.filename)
+    if len(i_filename)==0:
+        return current_app.message(_("Invalid filename.\n%(backlinks)s",backlinks=backlinks))
+
+    i_filename = os.path.join(tmpdir, i_filename)
+    i_file.save(i_filename)
+                                                                                    
+    new_name = request.values.get('name', None)
+
+    try:
+        if i_filename.endswith('.txt') or i_filename.endswith('.m') or i_filename.endswith('.r'):
+            o_file = open(i_filename, "r+w")
+            contents = o_file.read()
+            beg_text = "{{{id=1|\n"
+            end_text = "///\n}}}"
+            o_file.seek(0)
+            o_file.write(beg_text + contents + "\n" + end_text)
+            o_file.close()
+            if i_filename.endswith('.m'):
+                i_filename2 = i_filename.strip("m") + "txt"
+                os.rename(i_filename, i_filename2)
+                i_filename = i_filename2
+            elif i_filename.endswith('.r'):
+                i_filename2 = i_filename.strip("r") + "txt"
+                os.rename(i_filename, i_filename2)
+                i_filename = i_filename2
+            elif i_filename.endswith('.txt'):
+                print ".txt file."
+            else:
+                print "File extension not supported."
+    except:
+        return "Invalid file."
+
+    W = g.notebook.import_worksheet(i_filename, g.username)
+
+    # Deleting the temp file.
+    os.unlink(i_filename)
+    # If a temp directory was created, we delete it now.
+    if dir:
+        import shutil
+        shutil.rmtree(tmpdir)
+
+    if new_name:
+        W.set_name(new_name)
+    else:
+        W.set_name("Untitled")
+
+    from worksheet import url_for_worksheet
+    return redirect(url_for_worksheet(W))
+
 @worksheet_listing.route('/upload_worksheet', methods=['GET', 'POST'])
 @login_required
 def upload_worksheet():
