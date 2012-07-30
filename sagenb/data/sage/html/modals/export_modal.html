@@ -1,0 +1,31 @@
+{% extends 'html/modals/modal_base.html' %}
+
+{% block modal_id %}export_modal{% endblock modal_id%}
+
+{% block modal_title %}Export Worksheet to plain text file{% endblock modal_title %}
+
+{% block modal_content %}
+
+<div style="font-size: 12px">
+    <h5>Supported file formats:</h5>
+    <p>
+        You can export to several plain text file formats like <code>.txt</code> (default), <code>.m</code> or <code>.r</code>.
+        Just add the extension you want int the following text box.
+    </p>
+</div>
+<fieldset>
+    <div class="control-group">
+        <label class="control-label" for="extension">Extension</label>
+        <div class="controls">
+            <input type="text" class="input-xlarge" id="extension" name="extension" placeholder="txt">
+            <p class="help-block">Optional. Pick a extension for the text file (default <code>txt</code>).</p>
+        </div>
+    </div>
+</fieldset>
+
+{% endblock modal_content %}
+
+{% block modal_footer %}
+<a href="#" id="cancel_export_file" class="btn" data-dismiss="modal">Cancel</a>
+<a href="#" id="get_file" class="btn btn-primary" data-dismiss="modal">Export</a>
+{% endblock modal_footer %}

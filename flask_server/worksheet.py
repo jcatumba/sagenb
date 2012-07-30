@@ -827,6 +827,44 @@ def worksheet_publish(worksheet):
 ########################################################
 # Downloading, moving around, renaming, etc.
 ########################################################
+#@worksheet_command('export_file/<path:title>')
+#def worksheet_export_file(worksheet, title):
+#    return worksheet_export_plain(worksheet, title)
+#
+#def worksheet_export_plain(worksheet, title):
+#    """
+#    Exports all cel inputs to a plain text file
+#    """
+#    from sage.misc.misc import tmp_filename, tmp_dir
+#    from flask.helpers import send_file
+#
+#    ext = ""
+#
+#    if title.endswith(".m"):
+#        ext = "m"
+#    elif title.endswith(".r"):
+#        ext = "r"
+#    else:
+#        ext = "txt"
+#
+#    tmpfilename = tmp_filename() + '.' + ext
+#    tfile = open(tmpfilename, "w")
+#
+#    worksheet.save_snapshot(g.username)
+#
+#    i_text = str(worksheet.input_text()).replace("---\n\n", "")
+#    tfile.write(i_text)
+#    tfile.close()
+#
+#    if ext == 'm':
+#        return send_file(tmpfilename, mimetype="text/x-matlab")
+#    elif ext == 'r':
+#        return send_file(tmpfilename, mimetype="text/x-R")
+#    else:
+#        return send_file(tmpfilename, mimetype="text/plain")
+#
+#    os.unlink(tmpfilename)
+#
 @worksheet_command('download/<path:title>')
 def worksheet_download(worksheet, title):
     return unconditional_download(worksheet, title)
