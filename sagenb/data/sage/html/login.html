@@ -23,12 +23,13 @@
 
 {% block page_id %}login-page{% endblock %}
 
-{% block main %}
+{% block page %}
 {% if welcome_user %}
 <h2>{{ gettext('Congratulations %(u)s! You can now sign into the Sage Notebook.', u=welcome_user) }}</h2>
 {% endif %}
 
-<div id="desc">
+<div class="row-fluid">
+<div id="desc" class="span6">
     <h2>{{ gettext('Welcome!') }}</h2>
     <p>{{ gettext('<strong>Sage</strong> is a different approach to mathematics software.') }}</p>
 
@@ -59,12 +60,12 @@
 
 </div>
 
-<div id="sign-in-box">
+<div id="sign-in-box" class="span6">
     <h2>Sign into the Sage Notebook v{{ sage_version }}</h2>
-    <form method="POST" action="/login" id="sign-in-form">
+    <form method="POST" action="/login" id="sign-in-form" class="well">
         <div>
             <label for="email">{{ gettext('Username') }}</label>
-            <input type="text" name="email" size="15" />
+            <input type="email" name="email" size="15" placeholder="name@mail.com" />
             {% if username_error %}
             <span style="color:red">{{ gettext('Error') }}: </span>{{ gettext('Username is not in the system') }}
             {% endif %}
@@ -81,7 +82,7 @@
         </div>
         <div>
             <input type="hidden" name="next", value="{{next}}"/>
-            <button type="submit">{{ gettext('Sign in') }}</button>
+            <button type="submit" class="btn">{{ gettext('Sign in') }}</button>
         </div>
     </form>
     {% if accounts %}
@@ -105,6 +106,6 @@
     {% endif %}
     <noscript style="color:red">{{ gettext('Error') }}: {{ gettext('Javascript must be enabled in order to use the Sage Notebook.') }}</noscript>
 </div>
+</div>
 {% endblock %}
-
 
