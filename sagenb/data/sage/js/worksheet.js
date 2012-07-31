@@ -163,6 +163,12 @@ sagenb.worksheetapp.worksheet = function() {
 	_this.export_worksheet = function() {
 		window.open(_this.worksheet_command("download/" + _this.name + ".sws"));
 	};
+    _this.export_file = function(extension) {
+        if(extension == ""){
+            extension == "txt";
+        };
+        window.open(_this.worksheet_command("export_file/" + _this.name + '.' + extension));
+    };
 	_this.import_worksheet = function() {
 	
 	};
@@ -855,6 +861,7 @@ sagenb.worksheetapp.worksheet = function() {
 		$("#close_worksheet").click(_this.close);
 		$("#export_to_file").click(_this.export_worksheet);
 		// $("#import_from_file").click(_this.import_worksheet);
+        $("#get_file").click(_this.export_file($("#textension").val()));
 		$("#print").click(_this.print);
 		
 		////// VIEW //////

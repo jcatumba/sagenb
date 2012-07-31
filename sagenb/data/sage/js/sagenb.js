@@ -37,6 +37,11 @@ sagenb.init = function() {
 			form.reset();
 		});
 	});
+
+    /// EXPORT TO FILE DIALOG///
+    $("#cancel_export_file").click(function(e) {
+        $("#export_modal #extension").val("");
+    });
 };
 
 sagenb.start_loading = function() {
