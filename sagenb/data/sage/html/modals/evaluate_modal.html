@@ -1,0 +1,20 @@
+{% extends 'html/modals/modal_base.html' %}
+
+{% block modal_id %}evaluate_modal{% endblock modal_id%}
+
+{% block modal_title %}Evaluation in Background{% endblock modal_title %}
+
+{% block modal_content %}
+
+<div style="font-size: 12px">
+    <p>
+        You must set your account email in <a href="/settings">settings</a> if is not set already.
+        A message will be sent to that email when the calculation have finished.
+    </p>
+</div>
+
+{% endblock modal_content %}
+
+{% block modal_footer %}
+<a href="#" id="accept" class="btn btn-primary" data-dismiss="modal">Ok</a>
+{% endblock modal_footer %}
