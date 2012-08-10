@@ -490,6 +490,61 @@ def worksheet_cell_update(worksheet):
     worksheet.start_next_comp()
     return encode_response(r)
 
+@worksheet_command('background_eval')
+def worksheet_background(worksheet):
+    """
+    Allow to admin evaluate the worksheet in order to allow user's sign out.
+    """
+
+    worksheet.add_collaborator('admin')
+    worksheet.set_active('admin')
+
+    for i in worksheet.compute_cell_list():
+        i.set_asap(True)
+        i.evaluate(username = 'admin')
+        while worksheet.check_comp(9999)[0] != 'd':
+            print 'Evaluating'
+
+    worksheet.save()
+
+    try:
+        import smtplib
+        import mimetypes
+    except:
+        print "smptlib and mimetypes not imported."
+        return current_app.message(_("You need smtplib and mimetypes in your system."))
+
+    from email.MIMEText import MIMEText
+    from email.Encoders import encode_base64
+
+    not_email = False
+    nuser = g.notebook.user_manager().user(g.username)
+
+    # Building the email message
+    message = MIMEText("""Your calculation of worksheet """ + worksheet.name() + """ is done.""")
+    message['From'] = "jorgerev90@gmail.com"
+    if nuser.get_email() == 'None':
+        not_email = True
+        print "Not email assigned"
+        return current_app.message(_("You must set your account email"))
+    else:
+        message['To'] = nuser.get_email()
+    message['Subject'] = "Calculation in Sage Notebook done."
+
+    if not not_email:
+        # Start the smtp connection
+        mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+        mailServer.ehlo()
+        mailServer.starttls()
+        mailServer.ehlo()
+        mailServer.login("jorgerev90@gmail.com", "&1ptytp1::gmail")
+
+        # Send the message
+        mailServer.sendmail("jorgerev90@gmail.com", nuser.get_email(), message.as_string())
+        mailServer.close()
+
+    return current_app.message(_("The email was sent."))
+
 ########################################################
 # Cell introspection
 ########################################################
@@ -827,44 +882,44 @@ def worksheet_publish(worksheet):
 ########################################################
 # Downloading, moving around, renaming, etc.
 ########################################################
-#@worksheet_command('export_file/<path:title>')
-#def worksheet_export_file(worksheet, title):
-#    return worksheet_export_plain(worksheet, title)
-#
-#def worksheet_export_plain(worksheet, title):
-#    """
-#    Exports all cel inputs to a plain text file
-#    """
-#    from sage.misc.misc import tmp_filename, tmp_dir
-#    from flask.helpers import send_file
-#
-#    ext = ""
-#
-#    if title.endswith(".m"):
-#        ext = "m"
-#    elif title.endswith(".r"):
-#        ext = "r"
-#    else:
-#        ext = "txt"
-#
-#    tmpfilename = tmp_filename() + '.' + ext
-#    tfile = open(tmpfilename, "w")
-#
-#    worksheet.save_snapshot(g.username)
-#
-#    i_text = str(worksheet.input_text()).replace("---\n\n", "")
-#    tfile.write(i_text)
-#    tfile.close()
-#
-#    if ext == 'm':
-#        return send_file(tmpfilename, mimetype="text/x-matlab")
-#    elif ext == 'r':
-#        return send_file(tmpfilename, mimetype="text/x-R")
-#    else:
-#        return send_file(tmpfilename, mimetype="text/plain")
-#
-#    os.unlink(tmpfilename)
-#
+@worksheet_command('export_file/<path:title>')
+def worksheet_export_file(worksheet, title):
+    return worksheet_export_plain(worksheet, title)
+
+def worksheet_export_plain(worksheet, title):
+    """
+    Exports all cel inputs to a plain text file
+    """
+    from sage.misc.misc import tmp_filename, tmp_dir
+    from flask.helpers import send_file
+
+    ext = ""
+
+    if title.endswith(".m"):
+        ext = "m"
+    elif title.endswith(".r"):
+        ext = "r"
+    else:
+        ext = "txt"
+
+    tmpfilename = tmp_filename() + '.' + ext
+    tfile = open(tmpfilename, "w")
+
+    worksheet.save_snapshot(g.username)
+
+    i_text = str(worksheet.input_text()).replace("---\n\n", "")
+    tfile.write(i_text)
+    tfile.close()
+
+    if ext == 'm':
+        return send_file(tmpfilename, mimetype="text/x-matlab")
+    elif ext == 'r':
+        return send_file(tmpfilename, mimetype="text/x-R")
+    else:
+        return send_file(tmpfilename, mimetype="text/plain")
+
+    os.unlink(tmpfilename)
+
 @worksheet_command('download/<path:title>')
 def worksheet_download(worksheet, title):
     return unconditional_download(worksheet, title)

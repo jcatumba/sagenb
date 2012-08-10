@@ -46,6 +46,7 @@
 				<li><a href="#" id="evaluate_all_cells"><i class="icon-play"></i> Evaluate all Cells</a></li>
 				<li><a href="#" id="interrupt"><i class="icon-stop"></i> Interrupt</a></li>
 				<li><a href="#" id="restart_worksheet"><i class="icon-refresh"></i> Restart Worksheet</a></li>
+                <li><a href="#evaluate_modal" id="background_eval" data-toggle="modal"><i class="icon-tasks"></i> Evaluate in background</a></li>
 				<li class="divider"></li>
 				<li><a href="#system_modal" id="change_system" data-toggle="modal"><i class="icon-cog"></i> Change system</a></li>
 				<li class="divider"></li>
@@ -99,6 +100,7 @@
 	{% include 'html/modals/system_modal.html' %}
 	{% include 'html/modals/import_modal.html' %}
     {% include 'html/modals/export_modal.html' %}
+    {% include 'html/modals/evaluate_modal.html' %}
 	{% include 'html/modals/data_modal.html' %}
 
 	<iframe src="#" id="Jmol_zindex_fix"></iframe>

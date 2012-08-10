@@ -163,12 +163,6 @@ sagenb.worksheetapp.worksheet = function() {
 	_this.export_worksheet = function() {
 		window.open(_this.worksheet_command("download/" + _this.name + ".sws"));
 	};
-    _this.export_file = function(extension) {
-        if(extension == ""){
-            extension == "txt";
-        };
-        window.open(_this.worksheet_command("export_file/" + _this.name + '.' + extension));
-    };
 	_this.import_worksheet = function() {
 	
 	};
@@ -229,6 +223,9 @@ sagenb.worksheetapp.worksheet = function() {
 		});
 		sagenb.async_request(_this.worksheet_command('restart_sage'), sagenb.generic_callback());
 	};
+    _this.background_eval = function() {
+        sagenb.async_request(_this.worksheet_command('background_eval'), sagenb.generic_callback());
+    };
 	
 	//// OUTPUT STUFF ////
 	_this.hide_all_output = function() {
@@ -861,7 +858,13 @@ sagenb.worksheetapp.worksheet = function() {
 		$("#close_worksheet").click(_this.close);
 		$("#export_to_file").click(_this.export_worksheet);
 		// $("#import_from_file").click(_this.import_worksheet);
-        $("#get_file").click(_this.export_file($("#textension").val()));
+        $("#get_file").click(function(){
+            var extension = $("#extension").val()
+            if(extension == ""){
+                extension = "txt";
+            };
+            window.open(_this.worksheet_command("export_file/" + _this.name + '.' + extension));
+        });
 		$("#print").click(_this.print);
 		
 		////// VIEW //////
@@ -871,6 +874,7 @@ sagenb.worksheetapp.worksheet = function() {
 		$("#evaluate_all_cells").click(_this.evaluate_all);
 		$("#interrupt").click(_this.interrupt);
 		$("#restart_worksheet").click();
+        $("#accept").click(_this.background_eval);
 		// change system doesn't require event handler here
 		$("#hide_all_output").click(_this.hide_all_output);
 		$("#show_all_output").click(_this.show_all_output);
