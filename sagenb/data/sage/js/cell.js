@@ -131,11 +131,11 @@ sagenb.worksheetapp.cell = function(id) {
 			// backspace handler
 			extrakeys["Backspace"] = function(cm) {
 				// check if it is empty
-				
 				_this.hide_popover();
 
-				// all of this is disabled for now
-				if(cm.getValue() === "" && _this.worksheet.cells.length > 0 && !($("body").hasClass("single_cell_mode"))) {
+				var key, count = 0;
+				for(key in _this.worksheet.cells) count++;
+				if(cm.getValue() === "" && count > 0 && !($("body").hasClass("single_cell_mode"))) {
 					// it's empty and not the only one -> delete it
 					_this.delete();
 				} else {
@@ -177,6 +177,8 @@ sagenb.worksheetapp.cell = function(id) {
 				lineNumbers: $("#line_numbers_checkbox").prop("checked"),
 				matchBrackets: true,
 				
+				readOnly: (_this.worksheet.published_mode ? true : false),
+
 				mode: _this.get_codemirror_mode(),
 				
 				/* autofocus messes up when true */
@@ -224,81 +226,93 @@ sagenb.worksheetapp.cell = function(id) {
 		}
 		else {
 			// its a text cell
-			$(container).html("<div class=\"cell text_cell\" id=\"cell_" + _this.id + "\">" + 
-									"<div class=\"view_text\">" + _this.input + "</div>" + 
-									"<div class=\"edit_text\">" + 
-										"<textarea name=\"text_cell_textarea_" + _this.id + "\" id=\"text_cell_textarea_" + _this.id + "\">" + _this.input + "</textarea>" + 
-										"<div class=\"buttons\">" + 
-											"<button class=\"btn btn-danger delete_button pull-left\">Delete</button>" + 
-											"<button class=\"btn cancel_button\">Cancel</button>" + 
-											"<button class=\"btn btn-primary save_button\">Save</button>" + 
+			if(_this.worksheet.published_mode) {
+				$(container).html("<div class=\"cell text_cell\" id=\"cell_" + _this.id + "\">" + 
+										"<div class=\"view_text\">" + _this.input + "</div>" + 
+									"</div> <!-- /cell -->");
+
+				var $_this = $("#cell_" + _this.id);
+			
+				// MathJax the text
+				MathJax.Hub.Queue(["Typeset", MathJax.Hub, $_this.find(".view_text")[0]]);
+			}
+			else {
+				$(container).html("<div class=\"cell text_cell\" id=\"cell_" + _this.id + "\">" + 
+										"<div class=\"view_text\">" + _this.input + "</div>" + 
+										"<div class=\"edit_text\">" + 
+											"<textarea name=\"text_cell_textarea_" + _this.id + "\" id=\"text_cell_textarea_" + _this.id + "\">" + _this.input + "</textarea>" + 
+											"<div class=\"buttons\">" + 
+												"<button class=\"btn btn-danger delete_button pull-left\">Delete</button>" + 
+												"<button class=\"btn cancel_button\">Cancel</button>" + 
+												"<button class=\"btn btn-primary save_button\">Save</button>" + 
+											"</div>" + 
 										"</div>" + 
-									"</div>" + 
-								"</div> <!-- /cell -->");
-			
-			
-			// init tinyMCE
-			// we may want to customize the editor some to include other buttons/features
-			tinyMCE.init({
-				mode: "exact",
-				elements: ("text_cell_textarea_" + _this.id),
-				theme: "advanced",
+									"</div> <!-- /cell -->");
 				
-				width: "100%",
-				height: "300"
-			});
-			
-			var $_this = $("#cell_" + _this.id);
-			
-			// MathJax the text
-			MathJax.Hub.Queue(["Typeset", MathJax.Hub, $_this.find(".view_text")[0]]);
-			
-			$_this.dblclick(function(e) {
-				if(!_this.is_evaluate_cell) {
-					// set the current_cell_id
-					_this.worksheet.current_cell_id = _this.id;
+				
+				// init tinyMCE
+				// we may want to customize the editor some to include other buttons/features
+				tinyMCE.init({
+					mode: "exact",
+					elements: ("text_cell_textarea_" + _this.id),
+					theme: "advanced",
 					
-					// lose any selection that was made
-					if (window.getSelection) {
-						window.getSelection().removeAllRanges();
-					} else if (document.selection) {
-						document.selection.empty();
-					}
-					
-					// add the edit class
-					$("#cell_" + _this.id).addClass("edit");
-				}
-			});
-			
-			$_this.find(".delete_button").click(_this.delete);
-			
-			$_this.find(".cancel_button").click(function(e) {
-				// get tinymce instance
-				var ed = tinyMCE.get("text_cell_textarea_" + _this.id);
+					width: "100%",
+					height: "300"
+				});
 				
-				// revert the text
-				ed.setContent(_this.input);
-				
-				// remove the edit class
-				$("#cell_" + _this.id).removeClass("edit");
-			});
-			
-			$_this.find(".save_button").click(function(e) {
-				// get tinymce instance
-				var ed = tinyMCE.get("text_cell_textarea_" + _this.id);
-				
-				// send input
-				_this.send_input();
-				
-				// update the cell
-				$_this.find(".view_text").html(_this.input);
+				var $_this = $("#cell_" + _this.id);
 				
 				// MathJax the text
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub, $_this.find(".view_text")[0]]);
 				
-				// remove the edit class
-				$("#cell_" + _this.id).removeClass("edit");
-			});
+				$_this.dblclick(function(e) {
+					if(!_this.is_evaluate_cell) {
+						// set the current_cell_id
+						_this.worksheet.current_cell_id = _this.id;
+						
+						// lose any selection that was made
+						if (window.getSelection) {
+							window.getSelection().removeAllRanges();
+						} else if (document.selection) {
+							document.selection.empty();
+						}
+						
+						// add the edit class
+						$("#cell_" + _this.id).addClass("edit");
+					}
+				});
+				
+				$_this.find(".delete_button").click(_this.delete);
+				
+				$_this.find(".cancel_button").click(function(e) {
+					// get tinymce instance
+					var ed = tinyMCE.get("text_cell_textarea_" + _this.id);
+					
+					// revert the text
+					ed.setContent(_this.input);
+					
+					// remove the edit class
+					$("#cell_" + _this.id).removeClass("edit");
+				});
+				
+				$_this.find(".save_button").click(function(e) {
+					// get tinymce instance
+					var ed = tinyMCE.get("text_cell_textarea_" + _this.id);
+					
+					// send input
+					_this.send_input();
+					
+					// update the cell
+					$_this.find(".view_text").html(_this.input);
+					
+					// MathJax the text
+					MathJax.Hub.Queue(["Typeset", MathJax.Hub, $_this.find(".view_text")[0]]);
+					
+					// remove the edit class
+					$("#cell_" + _this.id).removeClass("edit");
+				});
+			}
 		}
 	};
 	_this.render_output = function(stuff_to_render) {
@@ -491,6 +505,8 @@ sagenb.worksheetapp.cell = function(id) {
 	});
 
 	_this.send_input = function() {
+		if(_this.worksheet.published_mode) return;
+
 		// mark the cell as changed
 		$("#cell_" + _this.id).addClass("input_changed");
 		
@@ -513,6 +529,7 @@ sagenb.worksheetapp.cell = function(id) {
 		});
 	};
 	_this.evaluate = function() {
+		if(_this.worksheet.published_mode) return;
 		if(!_this.is_evaluate_cell) {
 			// we're a text cell
 			_this.continue_evaluating_all();
@@ -536,6 +553,7 @@ sagenb.worksheetapp.cell = function(id) {
 		});
 	};
 	_this.evaluate_interact = function(update, recompute) {
+		if(_this.worksheet.published_mode) return;
 		sagenb.async_request(_this.worksheet.worksheet_command("eval"), _evaluate_callback, {
 			id: toint(_this.id),
 			interact: 1,
@@ -558,6 +576,7 @@ sagenb.worksheetapp.cell = function(id) {
 		 */
 		
 		if(!_this.is_evaluate_cell) return;
+		if(_this.worksheet.published_mode) return;
 		
 		/* split up the text cell and get before and after */
 		var before = "";
@@ -853,6 +872,7 @@ sagenb.worksheetapp.cell = function(id) {
 	};
 	
 	_this.continue_evaluating_all = function() {
+		if(_this.worksheet.published_mode) return;
 		if(_this.worksheet.is_evaluating_all) {
 			// go evaluate the next cell
 			var $nextcell = $("#cell_" + _this.id).parent().next().next().find(".cell");
@@ -871,6 +891,7 @@ sagenb.worksheetapp.cell = function(id) {
 	
 	/////// OUTPUT ///////
 	_this.delete_output = function() {
+		if(_this.worksheet.published_mode) return;
 		// TODO we should maybe interrupt the cell if its running here
 		sagenb.async_request(_this.worksheet.worksheet_command('delete_cell_output'), sagenb.generic_callback(function(status, response) {
 			_this.output = "";
@@ -881,16 +902,19 @@ sagenb.worksheetapp.cell = function(id) {
 	};
 	
 	_this.set_output_loading = function() {
+		if(_this.worksheet.published_mode) return;
 		_this.render_output("<div class=\"progress progress-striped active\" style=\"width: 25%; margin: 0 auto;\">" + 
 									"<div class=\"bar\" style=\"width: 100%;\"></div>" + 
 								"</div>");
 	};
 	_this.set_output_hidden = function() {
+		if(_this.worksheet.published_mode) return;
 		if($("#cell_" + _this.id + " .output_cell").length > 0) {
 			_this.render_output("<hr>");
 		}
 	}
 	_this.set_output_visible = function() {
+		if(_this.worksheet.published_mode) return;
 		_this.render_output();
 	}
 	_this.has_input_hide = function() {
@@ -899,6 +923,7 @@ sagenb.worksheetapp.cell = function(id) {
 	};
 	
 	_this.delete = function() {
+		if(_this.worksheet.published_mode) return;
 		if(_this.is_evaluating) {
 			// interrupt
 			sagenb.async_request(_this.worksheet.worksheet_command('interrupt'));
@@ -906,10 +931,9 @@ sagenb.worksheetapp.cell = function(id) {
 		
 		sagenb.async_request(_this.worksheet.worksheet_command('delete_cell'), sagenb.generic_callback(function(status, response) {
 			X = decode_response(response);
-			
 			if(X.command === "ignore") return;
 			
-			_this.worksheet.cells[_this.id] = null;
+			delete _this.worksheet.cells[_this.id];
 			
 			$("#cell_" + _this.id).parent().next().detach();
 			$("#cell_" + _this.id).parent().detach();
@@ -918,5 +942,3 @@ sagenb.worksheetapp.cell = function(id) {
 		});
 	};
 };
-
-

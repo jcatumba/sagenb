@@ -42,12 +42,7 @@
 					</a>
 					<a class="brand" href="/" style="padding-bottom: 0; padding-top: 5px; padding-right: 0;"><img src="/data/sage/images/headerlogo.png" alt="" width="113" height="30"></a>
 
-					{# TODO this should be conditional on whether or not the user is logged in #}
-					{% if True %}
-						{% include 'html/user_navbar_area.html' %}
-					{% else %}
-						<!-- user is not logged in -->
-					{% endif %}
+					<div id="user_navbar_area"></div>
 
 					<div class="nav-collapse">
 						{% block navbar %}
@@ -66,6 +61,7 @@
 			</div>
 		</div>
 
+		{% block main %}
 		<div class="the_container">
 			{% block container %}
 				{% block before_page %}
@@ -77,7 +73,7 @@
 			</div> <!-- /the_page -->
 			{% endblock container %}
 		</div> <!-- /the_container -->
-
+		{% endblock %}
 
 		{% block after_container %}
 		{% endblock after_container %}

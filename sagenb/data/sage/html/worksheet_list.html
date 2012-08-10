@@ -17,28 +17,20 @@
 
 
 {% block page %}
-	{# TODO gettext #}
 	<h1 class="title"></h1>
 
 	<div style="height: 10px;"></div>
 
+	{% if not published_mode %}
 	<div class="btn-toolbar well" id="top_toolbar">
-		{# TODO gettext #}
-		<a href="/new_worksheet" class="btn btn-primary" target="_blank"><i class="icon-file icon-white"></i> New Worksheet</a>
-		<a href="#import_modal" class="btn" data-toggle="modal"><i class="icon-upload"></i> Upload</a>
-		<a href="/download_worksheets.zip" class="btn"><i class="icon-download"></i> Download All Active</a>
+		<a href="/new_worksheet" class="btn btn-primary" target="_blank"><i class="icon-file icon-white"></i> {{ gettext("New Worksheet") }}</a>
+		<a href="#import_modal" class="btn" data-toggle="modal"><i class="icon-upload"></i> {{ gettext("Upload") }}</a>
+		<a href="/download_worksheets.zip" class="btn"><i class="icon-download"></i> {{ gettext("Download All Active") }}</a>
 	</div>
+	{% endif %}
 
 	<div class="btn-toolbar" id="bottom_toolbar">
-		{# <div class="pull-left" id="action_buttons">
-			<button type="button" class="btn btn-small hide" id="send_to_archive_button">Archive</button>
-			<button type="button" class="btn btn-small hide" id="unarchive_button">Unarchive</button>
-			<button type="button" class="btn btn-small hide" id="delete_button">Delete</button>
-			<button type="button" class="btn btn-small hide" id="undelete_button">Undelete</button>
-			<button type="button" class="btn btn-small hide" id="stop_button">Stop</button>
-			<button type="button" class="btn btn-small hide" id="download_button">Download</button>
-		</div> #}
-
+		{% if not published_mode %}
 		<div class="btn-group pull-left" id="actions_menu">
 			<button class="btn dropdown-toggle span2" data-toggle="dropdown">Action <span class="caret"></span></button>
 			<ul class="dropdown-menu">
@@ -54,15 +46,15 @@
 		</div>
 		
 		<div class="btn-group pull-left" data-toggle="buttons-radio" style="margin-left:55px;" id="type_buttons">
-			<button type="button" class="btn active" id="show_active">Active</button>{# TODO gettext #}
-			<button type="button" class="btn" id="show_archive">Archive</button>{# TODO gettext #}
-			<button type="button" class="btn" id="show_trash">Trash</button>{# TODO gettext #}
+			<button type="button" class="btn active" id="show_active">{{ gettext("Active") }}</button>
+			<button type="button" class="btn" id="show_archive">{{ gettext("Archive") }}</button>
+			<button type="button" class="btn" id="show_trash">{{ gettext("Trash") }}</button>
 		</div>
-		
+		{% endif %}
+
 		<form action="#" class="form-search pull-right" style="margin-bottom:0">
 			<div class="input-append">
-				{# TODO gettext #}
-				<input type="search" class="input-medium" placeholder="Search ..." size="12" id="search_input"><button class="btn" id="submit_search"><i class="icon-search"></i></button>
+				<input type="search" class="input-medium" placeholder="{{ gettext("Search...") }}" size="12" id="search_input"><button class="btn" id="submit_search"><i class="icon-search"></i></button>
 			</div>
 		</form>
 	</div>
@@ -72,11 +64,12 @@
 	<table class="table table-striped worksheets_table">
 		<thead>
 			<tr>
-				{# TODO gettext #}
+				{% if not published_mode %}
 				<th class="checkbox_cell"><input type="checkbox" id="main_checkbox"></th>
-				<th class="worksheet_name_cell">Worksheet</th>
-				<th>Owner/Collaborators</th>
-				<th class="last_edit_cell">Last Edited</th>
+				{% endif %}
+				<th class="worksheet_name_cell">{{ gettext("Worksheet") }}</th>
+				<th>{{ gettext("Owner/Collaborators") }}</th>
+				<th class="last_edit_cell">{{ gettext("Last Edited") }}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -90,9 +83,11 @@
 {% endblock after_container %}
 
 {% block extra_javascript %}
-	{# TODO: use webassets here #}
-	<!-- Worksheet related javascript -->
-	<script type="text/javascript" charset="utf-8" src="/data/sage/js/worksheet_list.js"></script>
+	{% assets filters="rjsmin", output="webassets_generated/worksheet_list.js",
+		"sage/js/worksheet_list.js"
+	%}
+		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+	{% endassets %}
 	
 	<script type="text/javascript">
 		$(function() {
@@ -101,6 +96,9 @@
 
 			// init the worksheet list
 			sagenb.worksheetlistapp.worksheet_list = new sagenb.worksheetlistapp.worksheet_list();
+			{% if published_mode %}
+			sagenb.worksheetlistapp.worksheet_list.published_mode = true;
+			{% endif %}
 			sagenb.worksheetlistapp.worksheet_list.init();
 		});
 	</script>
