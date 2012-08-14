@@ -10,9 +10,9 @@
 {% block alerts %}
     {% include 'html/alerts/worksheet_locked_alert.html' %}
     {% include 'html/alerts/rename_alert.html' %}
-    {% if configured %}
+    {% if g.notebook.user_manager().user(g.username).basic()['email'] == '' %}
         <div class="alert alert-error">
-            {{ incomplete_msg }} Hello
+            {{ gettext("You must configure your email and your default evaluation system in <a href=\"/settings\">settings</a>.") }}
         </div>
     {% endif %}
 {% endblock alerts %}

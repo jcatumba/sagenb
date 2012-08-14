@@ -46,7 +46,7 @@ def settings_page():
         nu['default_system'] = def_system
         redirect_to_home = True
 
-    if g.notebook.conf()['email']:
+    if not g.notebook.conf()['email']:
         newemail = request.values.get('new-email', None)
         if newemail:
             nu.set_email(newemail)
@@ -71,7 +71,7 @@ def settings_page():
     td['autosave_intervals'] = ((i, ' selected') if nu['autosave_interval']/60 == i else (i, '') for i in range(1, 10, 2))
 
     td['email'] = g.notebook.conf()['email']
-    if td['email']:
+    if not td['email']:
         td['email_address'] = nu.get_email() or 'None'
         if nu.is_email_confirmed():
             td['email_confirmed'] = 'Confirmed'
@@ -79,6 +79,8 @@ def settings_page():
             td['email_confirmed'] = 'Not confirmed'
 
     td['admin'] = nu.is_admin()
+
+    g.notebook.save()
 
     return render_template(os.path.join('html', 'settings', 'account_settings.html'), **td)
 
