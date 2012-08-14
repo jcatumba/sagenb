@@ -108,7 +108,7 @@ function system_to_codemirror_mode(system) {
 			mode = "";
 			break;
 		case "matlab":
-			mode = "";
+			mode = "matlab";
 			break;
 		case "mupad":
 			mode = "";

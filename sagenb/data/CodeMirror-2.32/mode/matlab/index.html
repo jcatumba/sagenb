@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: Matlab mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="matlab.js"></script>
+    <link rel="stylesheet" href="../../theme/neat.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+    <link rel="stylesheet" href="../../doc/docs.css">
+  </head>
+  <body>
+    <h1>CodeMirror: Matlab mode</h1>
+
+<form><textarea id="code" name="code">
+%% -*- mode: matlab; matlab-indent-level: 2 -*-
+
+function A = deffun(x,y)
+    A = x^2 + y^3
+end
+
+%% comentario
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        extraKeys: {"Tab":  "indentAuto"},
+        theme: "neat"
+      });
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-matlab</code>.</p>
+  </body>
+</html>
