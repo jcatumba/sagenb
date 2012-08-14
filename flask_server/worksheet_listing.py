@@ -76,6 +76,19 @@ def home(username):
 def bare_home():
     return redirect(url_for('home', username=g.username))
 
+#################
+# Verify config #
+#################
+@login_required
+def verify_configuration():
+    U = g.notebook.user_manager().user(g.username)
+    configured = False
+
+    if U.basic()['email'] == '':
+        incomplete_msg = "You must configure your email and default evaluation system in <a href=\"/settings\">settings</a> if you didn't yet."
+        configured = True
+        return incomplete_msg
+
 ###########
 # Folders #
 ###########

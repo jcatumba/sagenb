@@ -41,6 +41,11 @@ def settings_page():
             g.notebook.user_manager().set_password(g.username, new)
             redirect_to_logout = True
 
+    def_system = request.values.get('sel_system', None)
+    if def_system and nu['default_system'] != def_system:
+        nu['default_system'] = def_system
+        redirect_to_home = True
+
     if g.notebook.conf()['email']:
         newemail = request.values.get('new-email', None)
         if newemail:
@@ -66,7 +71,7 @@ def settings_page():
     td['autosave_intervals'] = ((i, ' selected') if nu['autosave_interval']/60 == i else (i, '') for i in range(1, 10, 2))
 
     td['email'] = g.notebook.conf()['email']
-    if not td['email']:
+    if td['email']:
         td['email_address'] = nu.get_email() or 'None'
         if nu.is_email_confirmed():
             td['email_confirmed'] = 'Confirmed'
