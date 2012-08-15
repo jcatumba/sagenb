@@ -331,7 +331,6 @@ def parse_link_rel(url, fn):
     return ret
 
 @worksheet_listing.route('/upload_from_file', methods=['GET', 'POST'])
-
 @login_required
 def upload_from_file():
     from sage.misc.misc import tmp_filename, tmp_dir
