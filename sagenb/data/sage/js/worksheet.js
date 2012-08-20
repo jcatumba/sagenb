@@ -143,8 +143,7 @@ sagenb.worksheetapp.worksheet = function() {
 		 * we have as default. I haven't seen this issue yet
 		 * but it may exist.
 		 */
-		console.log("print " + _this.name);
-		//window.open('/home/');
+		window.print();
 	};
 	
 	//////// EXPORT/IMPORT ///////
@@ -478,7 +477,7 @@ sagenb.worksheetapp.worksheet = function() {
 			_this.state_number = X.state_number;
 			
 			// remove all previous cells
-			$(".cell").detach();
+			$(".cell_wrapper").detach();
 			$(".new_cell_button").detach();
 			
 			// add the first new cell button
