@@ -593,7 +593,8 @@ def worksheet_text(worksheet):
     Return a window that allows the user to edit the text of the
     worksheet with the given filename.
     """
-    return g.notebook.html_plain_text_window(worksheet, g.username)
+    pass
+    #return g.notebook.html_plain_text_window(worksheet, g.username)
 
 ########################################################
 # Copy a worksheet
@@ -888,7 +889,7 @@ def worksheet_export_file(worksheet, title):
 
 def worksheet_export_plain(worksheet, title):
     """
-    Exports all cel inputs to a plain text file
+    Exports all cell inputs to a plain text file
     """
     from sage.misc.misc import tmp_filename, tmp_dir
     from flask.helpers import send_file
