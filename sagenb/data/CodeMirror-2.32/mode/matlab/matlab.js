@@ -63,7 +63,7 @@ CodeMirror.defineMode("matlab", function(cmCfg, modeCfg) {
     "div","not","or","orelse","rem","xor"];
 
   var symbolWords = [
-    "+","-","*","/",">",">=","<","=<","=:=","==","=/=","/=","||"];
+    "+","-","*","/",">",">=","<","=<",":","==","!=","||"];
 
   var openParenWords = [
     "(","[","{"];
@@ -79,7 +79,7 @@ CodeMirror.defineMode("matlab", function(cmCfg, modeCfg) {
 
   // ignored for indenting purposes
   var ignoreWords = [
-    ",", ":","catch"];
+    ",", ":","catch","return","end",";"];
 
 
   var smallRE      = /[a-z_]/;
