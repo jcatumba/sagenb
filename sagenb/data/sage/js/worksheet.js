@@ -838,7 +838,13 @@ sagenb.worksheetapp.worksheet = function() {
             if(extension == ""){
                 extension = "txt";
             };
-            window.open(_this.worksheet_command("export_file/" + _this.name + '.' + extension));
+            if($("#store").is(':checked')){
+				sagenb.async_request(_this.worksheet_command("export_file/" + _this.name + '.' + extension + '?store'), sagenb.generic_callback(function(status, response) {
+                    _this.worksheet_update();
+                }));
+            } else {
+                window.open(_this.worksheet_command("export_file/" + _this.name + '.' + extension));
+            }
         });
 		$("#print").click(_this.print);
 				
