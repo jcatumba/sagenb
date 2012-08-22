@@ -80,8 +80,6 @@ def logout():
     return redirect(url_for('base.index'))
 
 
-
-
 ################
 # Registration #
 ################
