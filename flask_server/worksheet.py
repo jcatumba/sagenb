@@ -491,59 +491,11 @@ def worksheet_cell_update(worksheet):
     return encode_response(r)
 
 @worksheet_command('background_eval')
-def worksheet_background(worksheet):
-    """
-    Allow to admin evaluate the worksheet in order to allow user's sign out.
-    """
-
-    worksheet.add_collaborator('admin')
-    worksheet.set_active('admin')
-
-    for i in worksheet.compute_cell_list():
-        i.set_asap(True)
-        i.evaluate(username = 'admin')
-        while worksheet.check_comp(9999)[0] != 'd':
-            print 'Evaluating'
-
-    worksheet.save()
-
-    try:
-        import smtplib
-        import mimetypes
-    except:
-        print "smptlib and mimetypes not imported."
-        return current_app.message(_("You need smtplib and mimetypes in your system."))
-
-    from email.MIMEText import MIMEText
-    from email.Encoders import encode_base64
-
-    not_email = False
-    nuser = g.notebook.user_manager().user(g.username)
-
-    # Building the email message
-    message = MIMEText("""Your calculation of worksheet """ + worksheet.name() + """ is done.""")
-    message['From'] = "jorgerev90@gmail.com"
-    if nuser.get_email() == 'None':
-        not_email = True
-        print "Not email assigned"
-        return current_app.message(_("You must set your account email"))
-    else:
-        message['To'] = nuser.get_email()
-    message['Subject'] = "Calculation in Sage Notebook done."
-
-    if not not_email:
-        # Start the smtp connection
-        mailServer = smtplib.SMTP('smtp.gmail.com', 587)
-        mailServer.ehlo()
-        mailServer.starttls()
-        mailServer.ehlo()
-        mailServer.login("jorgerev90@gmail.com", "&1ptytp1::gmail")
-
-        # Send the message
-        mailServer.sendmail("jorgerev90@gmail.com", nuser.get_email(), message.as_string())
-        mailServer.close()
-
-    return current_app.message(_("The email was sent."))
+def send_to_thread(worksheet):
+    import thread
+    from base import bg_eval
+    thread.start_new_thread(bg_eval, (g.username, worksheet.filename_without_owner()))
+    return 'done'
 
 ########################################################
 # Cell introspection
@@ -554,21 +506,22 @@ def worksheet_introspect(worksheet):
     Cell introspection. This is called when the user presses the tab
     key in the browser in order to introspect.
     """
-    r = {}
-    r['id'] = id = get_cell_id()
-
-    if worksheet.tags().get('_pub_', [False])[0]: #tags set in pub_worksheet
-        r['command'] = 'error'
-        r['message'] = 'Cannot evaluate public cell introspection.'
-        return encode_response(r)
-
-    before_cursor = request.values.get('before_cursor', '')
-    after_cursor = request.values.get('after_cursor', '')
-    cell = worksheet.get_cell_with_id(id)
-    cell.evaluate(introspect=[before_cursor, after_cursor])
-
-    r['command'] = 'introspect'
-    return encode_response(r)
+    return 'done'
+#    r = {}
+#    r['id'] = id = get_cell_id()
+#
+#    if worksheet.tags().get('_pub_', [False])[0]: #tags set in pub_worksheet
+#        r['command'] = 'error'
+#        r['message'] = 'Cannot evaluate public cell introspection.'
+#        return encode_response(r)
+#
+#    before_cursor = request.values.get('before_cursor', '')
+#    after_cursor = request.values.get('after_cursor', '')
+#    cell = worksheet.get_cell_with_id(id)
+#    cell.evaluate(introspect=[before_cursor, after_cursor])
+#
+#    r['command'] = 'introspect'
+#    return encode_response(r)
 
 ########################################################
 # Edit the entire worksheet
@@ -891,7 +844,7 @@ def worksheet_export_plain(worksheet, title):
     """
     Exports all cell inputs to a plain text file
     """
-    from sage.misc.misc import tmp_filename, tmp_dir
+    from sage.misc.misc import tmp_filename
     from flask.helpers import send_file
 
     ext = ""
@@ -912,14 +865,31 @@ def worksheet_export_plain(worksheet, title):
     tfile.write(i_text)
     tfile.close()
 
-    if ext == 'm':
-        return send_file(tmpfilename, mimetype="text/x-matlab")
-    elif ext == 'r':
-        return send_file(tmpfilename, mimetype="text/x-R")
+    if 'store' in request.values:
+        user_folder = os.path.split(worksheet.directory())[0] 
+        user_data_folder = user_folder + '/data'
+        short_file_name = os.path.split(tmpfilename)[1]
+        if not os.access(user_data_folder, os.F_OK):
+            os.mkdir(user_data_folder)
+            print 'Directory ' + user_data_folder + ' created.'
+        os.rename(tmpfilename, user_data_folder + '/' + title)
+        folders = os.listdir(user_folder)
+        if 'history.pickle' in folders:
+            folders.remove('history.pickle')
+        if 'data' in folders:
+            folders.remove('data')
+        for i in folders:
+            if not os.access(i + '/data/' + title, os.F_OK):
+                os.symlink(user_data_folder + '/' + title, user_folder + '/' + i + '/data/' + title)
+        return 'done'
     else:
-        return send_file(tmpfilename, mimetype="text/plain")
-
-    os.unlink(tmpfilename)
+        if ext == 'm':
+            return send_file(tmpfilename, mimetype="text/x-matlab")
+        elif ext == 'r':
+            return send_file(tmpfilename, mimetype="text/x-R")
+        else:
+            return send_file(tmpfilename, mimetype="text/plain")
+        os.unlink(tmpfilename)
 
 @worksheet_command('download/<path:title>')
 def worksheet_download(worksheet, title):

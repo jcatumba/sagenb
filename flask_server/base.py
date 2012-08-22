@@ -358,6 +358,64 @@ def notebook_updates():
 
 notebook = None
 
+def bg_eval(user_name, worksheet_id):
+    """
+    This function is executed indepently to give the user the ability to logout and get its calculations.
+    """
+    from sagenb.notebook.notebook import load_notebook
+    
+    nb = load_notebook('/home/jorge/.sage/sage_notebook.sagenb')
+    the_user = nb.user_manager().user(user_name)
+    the_worksheet = nb.worksheet(user_name, worksheet_id)
+    the_worksheet.set_active(user_name)
+    
+    for i in the_worksheet.compute_cell_list():
+        i.set_asap(True)
+        i.evaluate(username = user_name)
+        while the_worksheet.check_comp(9999)[0] != 'd':
+            pass
+    
+    the_worksheet.save()
+    the_worksheet.quit()
+    nb.save_worksheet(the_worksheet)
+    
+    try:
+        import smtplib
+        import mimetypes
+    except:
+        print "smptlib and mimetypes not imported"
+        return 'failed'
+    
+    from email.MIMEText import MIMEText
+    from email.Encoders import encode_base64
+    
+    not_email = False
+    
+    #Building the email message
+    message = MIMEText("""Your calculation of worksheet """ + the_worksheet.name() + """ is done. The next time that you access the server, the results of your computations will be in the worksheet.""")
+    message['From'] = "jorgerev90@gmail.com"
+    if the_user.get_email() == 'None':
+        not_email = True
+        print "Not email associated."
+        return 'failed'
+    else:
+        message['To'] = the_user.get_email()
+    message['Subject'] = "Calculation in Sage Notebook done."
+    
+    if not not_email:
+        #Start the smtp connection
+        mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+        mailServer.ehlo()
+        mailServer.starttls()
+        mailServer.ehlo()
+        mailServer.login("jorgerev90@gmail.com", "")
+        
+        #Send the message
+        mailServer.sendmail("jorgerev90@gmail.com", the_user.get_email(), message.as_string())
+        mailServer.close()
+    
+    print 'Done.'
+
 #CLEAN THIS UP!
 def create_app(path_to_notebook, *args, **kwds):
     """
