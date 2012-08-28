@@ -659,6 +659,21 @@ def worksheet_cells(worksheet, filename):
 ##############################################
 # Data
 ##############################################
+@worksheet_command('add_data_to_path')
+def add_to_path(worksheet):
+    if worksheet.system() == 'matlab':
+        nb = worksheet.notebook()
+        first = worksheet.cell_id_list()[0]
+        C = worksheet.new_cell_before(first, input="addpath(\'data\')")
+        C.evaluate()
+        while worksheet.check_comp(9999)[0] != 'd':
+            pass
+        worksheet.save()
+        worksheet.quit()
+        nb.save_worksheet(worksheet)
+
+    return ''
+
 @worksheet_command('data/<path:filename>')
 def worksheed_data_folder(worksheet,filename):
     dir = os.path.abspath(worksheet.data_directory())
