@@ -2398,17 +2398,6 @@ class Cell(Cell_generic):
                 if len(link_text) > 40:
                     link_text = link_text[:10] + '...' + link_text[-20:]
                 files.append('<a target="_new" href="%s" class="file_link">%s</a>' % (url, link_text))
-        if len(images) == 0:
-            images = ''
-        else:
-            images = "%s" % '<br>'.join(images)
-        if len(files) == 0:
-            files = ''
-        else:
-            files = ('&nbsp'*3).join(files)
-
-        files = unicode_str(files)
-        images = unicode_str(images)
 
         if(hasjmol and not hasjmolimages):
             # This is probably an old worksheet. Generate the missing jmol static image(s)
@@ -2441,7 +2430,17 @@ class Cell(Cell_generic):
             else:
                 images.append('Java Virtual Machine Unavailable.  Cannot make image from old data.  Please reevaluate cell.')
 
+        if len(images) == 0:
+            images = ''
+        else:
+            images = "%s" % '<br>'.join(images)
+        if len(files) == 0:
+            files = ''
+        else:
+            files = ('&nbsp'*3).join(files)
 
+        files = unicode_str(files)
+        images = unicode_str(images)
         return images + files
 
 
@@ -2482,18 +2481,18 @@ def format_exception(s0, ncols):
     # sage.server.support.help command.
     if TRACEBACK not in s or 'notracebacks' in s:
         return s0
-    if ncols > 0:
-        s = s.strip()
-        w = s.splitlines()
-        for k in range(len(w)):
-            if TRACEBACK in w[k]:
-                break
-        s = ('\n'.join(w[:k]) +
-             '\nTraceback (click to the left of this block for traceback)' +
-             '\n...\n' + w[-1])
-    else:
-        s = s.replace("exec compile(ur'", "")
-        s = s.replace("' + '\\n', '', 'single')", "")
+    #if ncols > 0:
+    #    s = s.strip()
+    #    w = s.splitlines()
+    #    for k in range(len(w)):
+    #        if TRACEBACK in w[k]:
+    #            break
+    #    s = ('\n'.join(w[:k]) +
+    #         '\nTraceback (click to the left of this block for traceback)' +
+    #         '\n...\n' + w[-1])
+    #else:
+    s = s.replace("exec compile(ur'", "")
+    s = s.replace("' + '\\n', '', 'single')", "")
     return s
 
 def number_of_rows(txt, ncols):
