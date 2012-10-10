@@ -750,6 +750,10 @@ sagenb.worksheetapp.worksheet = function() {
             sagenb.async_request(_this.worksheet_command("add_data_to_path"), sagenb.generic_callback());
         });
 
+        $("#add_files").click(function(e){
+            sagenb.async_request(_this.worksheet_command("add_files_to_data"), sagenb.generic_callback());
+        });
+
 		$("#data_modal ul.nav a").click(function(e) {
 			setTimeout(function() {
 				if($("#data_modal .tab-pane.active").attr("id") !== "manage_tab") {

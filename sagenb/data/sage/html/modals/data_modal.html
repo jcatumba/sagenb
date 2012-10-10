@@ -16,7 +16,7 @@
 			<ul class="dropdown-menu">
 				<li><a href="#new_file_tab" id="new_file" data-toggle="tab"><i class="icon-file"></i> {{ gettext("New file") }}</a></li>
 				<li><a href="#upload_data_file_tab" id="upload_file" data-toggle="tab"><i class="icon-upload"></i> {{ gettext("Upload file") }}</a></li>
-				<li><a href="#file_from_url_tab" id="file_from_url" data-toggle="tab"><i class="icon-globe"></i> {{ gettext("File from URL") }}</a></li>
+				<!--<li><a href="#file_from_url_tab" id="file_from_url" data-toggle="tab"><i class="icon-globe"></i> {{ gettext("File from URL") }}</a></li>-->
 			</ul>
 		</li>
 	</ul>
@@ -25,6 +25,7 @@
 
 		<div class="tab-pane active" id="manage_tab">
         <a href="#" id="add_path_button" class="btn">{{ gettext("Add data path to execution (Matlab only)")}}</a><hr>
+        <a href="#" id="add_files" class="btn">{{ gettext("Add all generated files to data")}}</a><hr>
 			<div id="data_list">
 				<ul class="nav nav-tabs nav-stacked">
 					

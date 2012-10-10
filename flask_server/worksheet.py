@@ -674,6 +674,16 @@ def add_to_path(worksheet):
 
     return ''
 
+@worksheet_command('add_files_to_data')
+def add_files(worksheet):
+    directory = worksheet.directory()
+    data_dir = worksheet.data_directory()
+    for i in os.listdir(directory + '/cells'):
+        for j in os.listdir(directory + '/cells/' + i):
+            if not os.access(data_dir + '/' + j, os.F_OK):
+                os.symlink(directory + '/cells/' + i + '/' + j, data_dir + '/' + j)
+    return ''
+
 @worksheet_command('data/<path:filename>')
 def worksheed_data_folder(worksheet,filename):
     dir = os.path.abspath(worksheet.data_directory())
@@ -886,7 +896,6 @@ def worksheet_export_plain(worksheet, title):
         short_file_name = os.path.split(tmpfilename)[1]
         if not os.access(user_data_folder, os.F_OK):
             os.mkdir(user_data_folder)
-            print 'Directory ' + user_data_folder + ' created.'
         os.rename(tmpfilename, user_data_folder + '/' + title)
         folders = os.listdir(user_folder)
         if 'history.pickle' in folders:
