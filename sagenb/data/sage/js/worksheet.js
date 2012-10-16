@@ -748,10 +748,12 @@ sagenb.worksheetapp.worksheet = function() {
 
         $("#add_path_button").click(function(e){
             sagenb.async_request(_this.worksheet_command("add_data_to_path"), sagenb.generic_callback());
+            _this.worksheet_update();
         });
 
         $("#add_files").click(function(e){
             sagenb.async_request(_this.worksheet_command("add_files_to_data"), sagenb.generic_callback());
+            _this.worksheet_update();
         });
 
 		$("#data_modal ul.nav a").click(function(e) {

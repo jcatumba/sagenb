@@ -669,7 +669,6 @@ def add_to_path(worksheet):
         while worksheet.check_comp(9999)[0] != 'd':
             pass
         worksheet.save()
-        worksheet.quit()
         nb.save_worksheet(worksheet)
 
     return ''
