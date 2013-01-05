@@ -99,7 +99,7 @@ sagenb.worksheetapp.cell = function(id) {
 	//////// RENDER //////////
 	_this.render = function(container) {
 		if(_this.is_evaluate_cell) {
-			// its an evaluate cell
+			// it's an evaluate cell
 		
 			// render into the container
 			$(container).html("<div class=\"cell evaluate_cell\" id=\"cell_" + _this.id + "\">" +
@@ -198,14 +198,16 @@ sagenb.worksheetapp.cell = function(id) {
 				},
 
 				onFocus: function() {
-					// may need to make sagenb.async_request here
 					_this.worksheet.current_cell_id = _this.id;
 					
 					$(".cell").removeClass("current_cell");
 					$("#cell_" + _this.id).addClass("current_cell");
 					
-					// unhide
+					// unhide if hidden
 					$("#cell_" + _this.id + " .input_cell").removeClass("input_hidden");
+
+					// Show the evaluate button
+					$("#cell_" + _this.id + " .evaluate_button_container").show();
 				},
 				onBlur: function() {
 					if(!($("body").hasClass("single_cell_mode"))) {
@@ -218,6 +220,9 @@ sagenb.worksheetapp.cell = function(id) {
 						_this.send_input();
 					}
 					
+					// Hide the evaluate button
+					$("#cell_" + _this.id + " .evaluate_button_container").hide();
+
 					// update cell properties without rendering
 					_this.update();
 				},
@@ -229,7 +234,7 @@ sagenb.worksheetapp.cell = function(id) {
 			_this.render_output();
 		}
 		else {
-			// its a text cell
+			// it's a text cell
 			if(_this.worksheet.published_mode) {
 				$(container).html("<div class=\"cell text_cell\" id=\"cell_" + _this.id + "\">" + 
 										"<div class=\"view_text\">" + _this.input + "</div>" + 

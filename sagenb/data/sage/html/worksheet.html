@@ -21,6 +21,10 @@
 					<li><a href="#" id="close_worksheet"><i class="icon-remove"></i> {{ gettext("Close Worksheet") }}</a></li>
 
 					<li class="divider"></li>
+					<li><a href="text" id="worksheet_text"><i class="icon-font"></i> Text Mode</a></li>
+					<li><a href="edit" id="worksheet_edit"><i class="icon-pencil"></i> Edit Mode</a></li>
+
+					<li class="divider"></li>
 					<li><a href="#" id="export_to_file"><i class="icon-download"></i> {{ gettext("Export to File") }}</a></li>
 					<li><a href="#import_modal" id="import_from_file" data-toggle="modal"><i class="icon-upload"></i> {{ gettext("Import from File") }}</a></li>
 
@@ -56,9 +60,7 @@
 					<li><a href="#" id="delete_all_output"><i class="icon-remove"></i> {{ gettext("Delete all output") }}</a></li>
 				</ul>
 			</li>
-			<li class="dropdown">
-				<a href="#data_modal" data-toggle="modal">{{ gettext("Data") }}</a>
-			</li>
+			<li><a href="#data_modal" data-toggle="modal">{{ gettext("Data") }}</a></li>
 			<li><a href="#sharing_modal" id="sharing" data-toggle="modal">{{ gettext("Sharing") }}</a></li>
 		</ul>
 	{% endif %}
