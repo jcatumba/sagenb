@@ -432,7 +432,7 @@ sagenb.worksheetapp.worksheet = function() {
 			
 			// data
 			$("#data_list ul *").detach();
-			for(i in _this.attached_data_files) {
+			for(var i in _this.attached_data_files) {
 				var datafile = _this.attached_data_files[i];
 
 				$("#data_list ul").append('<li>' + 
@@ -507,7 +507,7 @@ sagenb.worksheetapp.worksheet = function() {
 				_this.cells[cell_obj.id] = newcell;
 			}
 		}));
-	}
+	};
 	
 	
 	
@@ -549,7 +549,7 @@ sagenb.worksheetapp.worksheet = function() {
 		}
 		
 		sagenb.done_loading();
-	}
+	};
 	
 	
 	//////////////// INITIALIZATION ////////////////////
@@ -869,5 +869,5 @@ sagenb.worksheetapp.worksheet = function() {
 		$("#hide_all_output").click(_this.hide_all_output);
 		$("#show_all_output").click(_this.show_all_output);
 		$("#delete_all_output").click(_this.delete_all_output);
-	}
+	};
 };
