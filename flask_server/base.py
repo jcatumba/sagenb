@@ -364,20 +364,21 @@ def bg_eval(user_name, worksheet_id):
     """
     from sagenb.notebook.notebook import load_notebook
     
-    nb = load_notebook('/home/jorge/.sage/sage_notebook.sagenb')
-    the_user = nb.user_manager().user(user_name)
-    the_worksheet = nb.worksheet(user_name, worksheet_id)
+    #nb = load_notebook('/home/jorge/.sage/sage_notebook.sagenb')
+    the_user = notebook.user_manager().user(user_name)
+    the_worksheet = notebook.worksheet(user_name, worksheet_id)
     the_worksheet.set_active(user_name)
     
     for i in the_worksheet.compute_cell_list():
         i.set_asap(True)
-        i.evaluate(username = user_name)
-        while the_worksheet.check_comp(9999)[0] != 'd':
+        #i.evaluate(username = user_name)
+        i.evaluate(username = "admin")
+        while the_worksheet.check_comp(999)[0] != 'd':
             pass
     
     the_worksheet.save()
     the_worksheet.quit()
-    nb.save_worksheet(the_worksheet)
+    notebook.save_worksheet(the_worksheet)
     
     try:
         import smtplib
@@ -413,8 +414,6 @@ def bg_eval(user_name, worksheet_id):
         #Send the message
         mailServer.sendmail("jorgerev90@gmail.com", the_user.get_email(), message.as_string())
         mailServer.close()
-    
-    print 'Done.'
 
 #CLEAN THIS UP!
 def create_app(path_to_notebook, *args, **kwds):
