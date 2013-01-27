@@ -176,6 +176,7 @@ sagenb.worksheetapp.cell = function(id) {
 					if(prevcell) {
 						_this.cancel_introspect();
 
+						_this.blur();
 						prevcell.focus();
 					}
 				} else {
@@ -190,6 +191,7 @@ sagenb.worksheetapp.cell = function(id) {
 					if(nextcell) {
 						_this.cancel_introspect();
 
+						_this.blur();
 						nextcell.focus();
 					}
 				} else {
@@ -235,49 +237,44 @@ sagenb.worksheetapp.cell = function(id) {
 				
 				/* autofocus messes up when true */
 				autofocus: false,
-			
-				onChange: function(cm, chg) {
-					if(chg.text[0] === "(") {
-						_this.introspect();
-					}
-					else if(chg.text[0] === ")") {
-						_this.cancel_introspect();
-					}
-				},
 
-				onFocus: function() {
-					_this.worksheet.current_cell_id = _this.id;
-					
-					$(".cell").removeClass("current_cell");
-					$("#cell_" + _this.id).addClass("current_cell");
-					
-					// unhide if hidden
-					$("#cell_" + _this.id + " .input_cell").removeClass("input_hidden");
-
-					// Show the evaluate button
-					$("#cell_" + _this.id + " .evaluate_button_container").show();
-				},
-				onBlur: function() {
-					if(!($("body").hasClass("single_cell_mode"))) {
-						$("#cell_" + _this.id).removeClass("current_cell");
-					}
-					
-					if(_this.input !== _this.codemirror.getValue()) {
-						// the input has changed since the user focused
-						// so we send it back to the server
-						_this.send_input();
-					}
-					
-					// Hide the evaluate button
-					$("#cell_" + _this.id + " .evaluate_button_container").hide();
-
-					// update cell properties without rendering
-					_this.update();
-				},
-			
 				extraKeys: extrakeys
 			});
+
+			_this.codemirror.on("change", function(cm, chg) {
+				if(chg.text[0] === "(") {
+					_this.introspect();
+				}
+				else if(chg.text[0] === ")") {
+					_this.cancel_introspect();
+				}
+			});
 			
+			_this.codemirror.on("focus", function() {
+				_this.worksheet.current_cell_id = _this.id;
+				
+				$(".cell").removeClass("current_cell");
+				$("#cell_" + _this.id).addClass("current_cell");
+				
+				// unhide if hidden
+				$("#cell_" + _this.id + " .input_cell").removeClass("input_hidden");
+			});
+
+			_this.codemirror.on("blur", function() {
+				if(!($("body").hasClass("single_cell_mode"))) {
+					$("#cell_" + _this.id).removeClass("current_cell");
+				}
+				
+				if(_this.input !== _this.codemirror.getValue()) {
+					// the input has changed since the user focused
+					// so we send it back to the server
+					_this.send_input();
+				}
+
+				// update cell properties without rendering
+				_this.update();
+			});
+
 			// render the output
 			_this.render_output();
 		}
@@ -485,6 +482,12 @@ sagenb.worksheetapp.cell = function(id) {
 			tinyMCE.execCommand('mceFocus', false, "text_cell_textarea_" + _this.id);
 		}
 	}
+
+	_this.blur = function() {
+		if(_this.codemirror) {
+			_this.codemirror.getInputField().blur();
+		}
+	}
 	
 	_this.is_focused = function() {
 		return _this.worksheet.current_cell_id === _this.id;
@@ -511,8 +514,8 @@ sagenb.worksheetapp.cell = function(id) {
 		var pos = _this.codemirror.cursorCoords();
 		tooltip_root.css({
 			"position": "absolute",
-			"left": pos.x,
-			"top": pos.yBot
+			"left": pos.left,
+			"top": pos.bottom
 		});
 
 		tooltip_root.popover({
@@ -613,6 +616,11 @@ sagenb.worksheetapp.cell = function(id) {
 
 		_this.cancel_introspect();
 		_this.set_output_loading();
+
+		var nextcell = get_next_cell();
+		if(nextcell) {
+			nextcell.focus();
+		}
 
 		// we're an evaluate cell
 		sagenb.async_request(_this.worksheet.worksheet_command("eval"), _evaluate_callback, {
@@ -856,16 +864,16 @@ sagenb.worksheetapp.cell = function(id) {
 							sel.firstChild.selected = true;
 							sel.size = Math.min(10, completions.length);
 							var pos = editor.cursorCoords();
-							complete.style.left = pos.x + "px";
-							complete.style.top = pos.yBot + "px";
+							complete.style.left = pos.left + "px";
+							complete.style.top = pos.bottom + "px";
 							document.body.appendChild(complete);
 							// If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
 							var winW = window.innerWidth || Math.max(document.body.offsetWidth, document.documentElement.offsetWidth);
-							if(winW - pos.x < sel.clientWidth)
-							complete.style.left = (pos.x - sel.clientWidth) + "px";
+							if(winW - pos.left < sel.clientWidth)
+								complete.style.left = (pos.left - sel.clientWidth) + "px";
 							// Hack to hide the scrollbar.
 							if (completions.length <= 10)
-							complete.style.width = (sel.clientWidth - 1) + "px";
+								complete.style.width = (sel.clientWidth - 1) + "px";
 
 							
 							/* Close the completions menu */
@@ -883,8 +891,8 @@ sagenb.worksheetapp.cell = function(id) {
 								setTimeout(function(){editor.focus();}, 50);
 							}
 							
-							CodeMirror.connect(sel, "blur", close);
-							CodeMirror.connect(sel, "keydown", function(event) {
+							CodeMirror.on(sel, "blur", close);
+							CodeMirror.on(sel, "keydown", function(event) {
 								var code = event.keyCode;
 								// Enter
 								if (code === 13) {CodeMirror.e_stop(event); pick();}
@@ -910,7 +918,7 @@ sagenb.worksheetapp.cell = function(id) {
 									// setTimeout(_this.introspect, 50);
 								}
 							});
-							CodeMirror.connect(sel, "dblclick", pick);
+							CodeMirror.on(sel, "dblclick", pick);
 
 							sel.focus();
 							// Opera sometimes ignores focusing a freshly created node
@@ -1009,6 +1017,11 @@ sagenb.worksheetapp.cell = function(id) {
 		if(_this.is_evaluating) {
 			// interrupt
 			sagenb.async_request(_this.worksheet.worksheet_command('interrupt'));
+		}
+
+		var prevcell = get_prev_cell();
+		if(prevcell) {
+			prevcell.focus();
 		}
 		
 		sagenb.async_request(_this.worksheet.worksheet_command('delete_cell'), sagenb.generic_callback(function(status, response) {
