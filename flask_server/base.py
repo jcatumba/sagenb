@@ -394,7 +394,7 @@ def bg_eval(user_name, worksheet_id):
     
     #Building the email message
     message = MIMEText("""Your calculation of worksheet """ + the_worksheet.name() + """ is done. The next time that you access the server, the results of your computations will be in the worksheet.""")
-    message['From'] = "jorgerev90@gmail.com"
+    message['From'] = "example@mail.com"
     if the_user.get_email() == 'None':
         not_email = True
         print "Not email associated."
@@ -409,10 +409,10 @@ def bg_eval(user_name, worksheet_id):
         mailServer.ehlo()
         mailServer.starttls()
         mailServer.ehlo()
-        mailServer.login("jorgerev90@gmail.com", "")
+        mailServer.login("example@mail.com", "")
         
         #Send the message
-        mailServer.sendmail("jorgerev90@gmail.com", the_user.get_email(), message.as_string())
+        mailServer.sendmail("example@mail.com", the_user.get_email(), message.as_string())
         mailServer.close()
 
 #CLEAN THIS UP!
