@@ -5,11 +5,11 @@
 	cursor: pointer;
 	
 	.line {
-		height: 2px;
+		height: 3px;
 	}
 	
 	&:hover .line {
-		background-color: #eaeafc;
+		background-color: #dadadc;
 	}
 }
 
@@ -78,4 +78,10 @@
 	position: fixed;
 	top: 0;
 	z-index: 99;
+}
+
+@media (max-width: 979px) {
+	#Jmol_zindex_fix {
+		display: none;
+	}
 }

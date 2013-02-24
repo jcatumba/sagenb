@@ -27,24 +27,41 @@ sagenb.worksheetapp.cell = function(id) {
 
 	
 	// HELPERS
-	function get_next_cell() {
-		var $nextcell = $("#cell_" + _this.id).parent().next().next().find(".cell");
+	function get_next_eval_cell() {
+		var $nextcell = $("#cell_" + _this.id).parent().next().next();
+		while($nextcell.length > 0 && $nextcell.find(".evaluate_cell").length === 0) {
+			$nextcell = $nextcell.next().next();
+		}
 		if($nextcell.length > 0) {
 			// we're not the last cell
-			var nextcell_id = parseInt($nextcell.attr("id").substring(5));
+			var nextcell_id = parseInt($nextcell.find(".evaluate_cell").attr("id").substring(5));
 			return _this.worksheet.cells[nextcell_id];
 		}
 	}
 
-	function get_prev_cell() {
-		var $prevcell = $("#cell_" + _this.id).parent().prev().prev().find(".cell");
+	function get_prev_eval_cell() {
+		var $prevcell = $("#cell_" + _this.id).parent().prev().prev();
+		while($prevcell.length > 0 && $prevcell.find(".evaluate_cell").length === 0) {
+			$prevcell = $prevcell.prev().prev();
+		}
 		if($prevcell.length > 0) {
 			// we're not the last cell
-			var prevcell_id = parseInt($prevcell.attr("id").substring(5));
+			var prevcell_id = parseInt($prevcell.find(".evaluate_cell").attr("id").substring(5));
 			return _this.worksheet.cells[prevcell_id];
 		}
-	}	
+	}
 
+	function fixOldjsMath(elem) {
+		// mathjax each span with \( \)
+		$(elem).find("span.math").each(function(i, element) {
+			$(element).html("\\(" + $(element).html() + "\\)");
+		});
+		
+		// mathjax each div with \[ \]
+		$(elem).find("div.math").each(function(i, element) {
+			$(element).html("\\[" + $(element).html() + "\\]");
+		});
+	}
 
 	///////////// UPDATING /////////////
 	_this.update = function(render_container, auto_evaluate) {
@@ -172,7 +189,7 @@ sagenb.worksheetapp.cell = function(id) {
 			extrakeys["Up"] = function(cm) {
 				var c = cm.getCursor();
 				if(c.line === 0) {
-					var prevcell = get_prev_cell();
+					var prevcell = get_prev_eval_cell();
 					if(prevcell) {
 						_this.cancel_introspect();
 
@@ -187,7 +204,7 @@ sagenb.worksheetapp.cell = function(id) {
 			extrakeys["Down"] = function(cm) {
 				var c = cm.getCursor();
 				if(c.line === cm.getValue().split("\n").length - 1) {
-					var nextcell = get_next_cell();
+					var nextcell = get_next_eval_cell();
 					if(nextcell) {
 						_this.cancel_introspect();
 
@@ -334,9 +351,6 @@ sagenb.worksheetapp.cell = function(id) {
 				
 				$_this.dblclick(function(e) {
 					if(!_this.is_evaluate_cell) {
-						// set the current_cell_id
-						_this.worksheet.current_cell_id = _this.id;
-						
 						// lose any selection that was made
 						if (window.getSelection) {
 							window.getSelection().removeAllRanges();
@@ -345,7 +359,8 @@ sagenb.worksheetapp.cell = function(id) {
 						}
 						
 						// add the edit class
-						$("#cell_" + _this.id).addClass("edit");
+						$("#cell_" + _this.id).addClass("edit")
+											  .addClass("current_cell");
 					}
 				});
 				
@@ -359,7 +374,8 @@ sagenb.worksheetapp.cell = function(id) {
 					ed.setContent(_this.input);
 					
 					// remove the edit class
-					$("#cell_" + _this.id).removeClass("edit");
+					$("#cell_" + _this.id).removeClass("edit")
+										  .removeClass("current_cell");
 				});
 				
 				$_this.find(".save_button").click(function(e) {
@@ -376,7 +392,8 @@ sagenb.worksheetapp.cell = function(id) {
 					MathJax.Hub.Queue(["Typeset", MathJax.Hub, $_this.find(".view_text")[0]]);
 					
 					// remove the edit class
-					$("#cell_" + _this.id).removeClass("edit");
+					$("#cell_" + _this.id).removeClass("edit")
+										  .removeClass("current_cell");
 				});
 			}
 		}
@@ -455,17 +472,7 @@ sagenb.worksheetapp.cell = function(id) {
 				$output_cell.html("\\[" + $output_cell.find("script[type='math/tex']").html() + "\\]");
 			}
 			else {
-				// NOTE: these may be obsolete
-
-				// mathjax each span with \( \)
-				$output_cell.find("span.math").each(function(i, element) {
-					$(element).html("\\(" + $(element).html() + "\\)");
-				});
-				
-				// mathjax each div with \[ \]
-				$output_cell.find("div.math").each(function(i, element) {
-					$(element).html("\\[" + $(element).html() + "\\]");
-				});
+				fixOldjsMath($output_cell);
 			}
 
 			MathJax.Hub.Queue(["Typeset", MathJax.Hub, $output_cell[0]]);
@@ -525,6 +532,7 @@ sagenb.worksheetapp.cell = function(id) {
 		});
 
 		tooltip_root.popover("show");
+		fixOldjsMath($(".popover"));
 		MathJax.Hub.Queue(["Typeset", MathJax.Hub, $(".popover")[0]]);
 
 		var safety = 50;
@@ -617,7 +625,7 @@ sagenb.worksheetapp.cell = function(id) {
 		_this.cancel_introspect();
 		_this.set_output_loading();
 
-		var nextcell = get_next_cell();
+		var nextcell = get_next_eval_cell();
 		if(nextcell) {
 			nextcell.focus();
 		}
@@ -967,7 +975,7 @@ sagenb.worksheetapp.cell = function(id) {
 		if(_this.worksheet.published_mode) return;
 		if(_this.worksheet.is_evaluating_all) {
 			// get the next cell
-			var nextcell = get_next_cell();
+			var nextcell = get_next_eval_cell();
 
 			if(nextcell) {
 				// evaluate
@@ -1019,7 +1027,7 @@ sagenb.worksheetapp.cell = function(id) {
 			sagenb.async_request(_this.worksheet.worksheet_command('interrupt'));
 		}
 
-		var prevcell = get_prev_cell();
+		var prevcell = get_prev_eval_cell();
 		if(prevcell) {
 			prevcell.focus();
 		}

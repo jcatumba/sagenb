@@ -207,6 +207,11 @@ sagenb.worksheetapp.worksheet = function() {
 		if(_this.published_mode) return;
 		sagenb.async_request(_this.worksheet_command('interrupt'), sagenb.generic_callback());
 	};
+	_this.interrupt_with_confirm = function() {
+		if(confirm(gettext("Are you sure you would like to interrupt the running computation?"))) {
+			_this.interrupt();
+		}
+	};
 	_this.restart_sage = function() {
 		if(_this.published_mode) return;
 		_this.forEachCell(function(cell) {
@@ -829,15 +834,15 @@ sagenb.worksheetapp.worksheet = function() {
 			1000
 		);
 		
-		// load js-hotkeys
-		/* TODO notes on hotkeys: these don't work on all browsers consistently
+		// Setup hotkeys
+		/* Notes on hotkeys: these don't work on all browsers consistently
 		but they are included in the best case scenario that they are all 
-		accepted. I have not checked all of the official hotkeys for Sage NB
-		so this list may not be complete but will be updated later. */
+		accepted. */
 		$(document).bind("keydown", sagenb.ctrlkey + "+N", function(evt) { _this.new_worksheet(); return false; });
 		$(document).bind("keydown", sagenb.ctrlkey + "+S", function(evt) { _this.save(); return false; });
 		$(document).bind("keydown", sagenb.ctrlkey + "+W", function(evt) { _this.close(); return false; });
 		$(document).bind("keydown", sagenb.ctrlkey + "+P", function(evt) { _this.print(); return false; });
+		$(document).bind("keydown", "esc", function(evt) { _this.interrupt_with_confirm(); return false; });
 				
 		/////// FILE MENU ////////
 		$("#new_worksheet").click(_this.new_worksheet);
@@ -863,7 +868,7 @@ sagenb.worksheetapp.worksheet = function() {
 		////////// EVALUATION ///////////
 		$("#evaluate_all_cells").click(_this.evaluate_all);
 		$("#interrupt").click(_this.interrupt);
-		$("#restart_worksheet").click();
+		$("#restart_worksheet").click(_this.restart_sage);
         $("#accept").click(_this.background_eval);
 		// change system doesn't require event handler here
 		$("#hide_all_output").click(_this.hide_all_output);
